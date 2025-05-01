@@ -1,4 +1,4 @@
-# Laravel API Tutorial
+# API Tutorial
 ## What is API
 Application programming interface is a way for share data between two technology or two projects.
 
@@ -251,3 +251,79 @@ Route::resource('member',MemberController::class);
 ```
 - Test APIs 
 
+## API Signup with Laravel sanctum
+- what is sanctum?
+- - sanctum is a package for token generation.
+- Install laravel API
+- Migrate tables
+```bash
+php artisan migrate
+```
+- Make Controller
+```bash
+php artisan make:controller UserAuthController
+```
+- Update User Model
+navigate to app/models/User.php
+
+```php
+use Laravel\Sanctum\HasApiTokens;
+
+    use HasFactory, Notifiable, HasApiTokens;
+
+```
+- Define Route
+in api.php
+```php
+Route::post('signup',[UserAuthController::class, 'signUp']);
+Route::post('login',[UserAuthController::class, 'login']);
+```
+- Write code for Signup
+in UserAuthController.php
+```php
+use App\Models\User;
+
+    function signUp(Request $request){
+        $input = $request->all();
+        $input["password"] = bcrypt($input["password"]);
+        $user = User::create($input);
+        $success['token'] = $user->createToken('MyApp')->plainTextToken;
+        $user['name'] = $user->name;
+        return [
+            "success"=>true,
+            "result"=>$success
+        ];
+    }
+
+```
+
+- Test APIs and Check token
+
+## Login API with Laravel sanctum
+- Make Login function and Route for Login API
+```php
+    function login(Request $request){
+        // return "Login called";
+        // return $request->all();
+        $user = User::where('email', $request->email)->first();
+        if(!$user || !Hash::check($request->password, $user->password)){
+            return [
+                'result'=>'user not found',
+                'success'=>'false'
+            ];
+        }
+        $success['token'] = $user->createToken('MyApp')->plainTextToken;
+        $user['name'] = $user->name;
+        return [
+            "success"=>true,
+            "result"=>$success
+        ];
+    }
+```
+- Write code for Login API
+- Test APIs and check token
+## API Authentication with Laravel sanctum
+
+- Apply sanctum middleware to routes
+- Send Token with API
+- Test Apis and check tokens
