@@ -6,6 +6,7 @@ use HashContext;
 use Illuminate\Http\Request;
 use App\Models\users;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -14,6 +15,14 @@ class UserController extends Controller
     }
 
     function addUser(Request $request){
+        $rules = array(
+            'name'=>'required | min:2 | max:10',
+            'email'=>'required | email',
+        );
+        $validation = Validator::make($request->all(), $rules);
+        if($validation->fails()){
+            return $validation->errors();
+        }
         $user = new users();
         $user->name = $request->name;
         $user->username = $request->username;
@@ -51,5 +60,13 @@ class UserController extends Controller
         else {
             return "not deleted";
         }
+    }
+
+    function searchUser($name){
+        $user = users::where('name', 'like', "%$name%")->get();
+        if(!empty($user)){
+            return $user;
+        }
+        else return "no record found";
     }
 }

@@ -181,4 +181,73 @@ Route::delete('deleteuser', [UserController::class, 'deleteUser']);
 call for localhost:8000/api/deleteuser/12
 - Test Database table data
 
+## Make API for search
+- Make function and define route
+```php
+    function searchUser($name){
+        $user = users::where('name', 'like', "%$name%")->get();
+        if(!empty($user)){
+            return $user;
+        }
+        else return "no record found";
+    }
+
+
+Route::get('searchuser/{name}', [UserController::class, 'searchUser']);
+```
+- Write code for search data API
+- Test API
+- Verify result with database table data
+
+## Validate API
+- Import Validation class
+in UserController.php
+```php
+use Illuminate\Support\Facades\Validator;
+
+    function addUser(Request $request){
+        $rules = array(
+            'name'=>'required | min:2 | max:10',
+            'email'=>'required | email',
+        );
+        $validation = Validator::make($request->all(), $rules);
+        if($validation->fails()){
+            return $validation->errors();
+        }
+        $user = new users();
+        $user->name = $request->name;
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->role = $request->role;
+        $user->password = Hash::make($request->password);
+        $user->status = $request->status;
+        $user->phone = $request->phone;
+        if($user->save()){
+            return $user;
+        }
+        else{
+            return "failed";
+        }
+    }
+
+```
+- Apply Validation for add student API
+- Test API
+- Verify the result with databse table data
+
+## API With Resource Controller 
+- What is Resource Controllers?
+- Make Controller with Resource
+```bash
+php artisan make:controller MemberController --resource
+```
+it(--resource) would automatically create some functions in the controllers
+- Write Routes 
+in api.php
+```php
+use App\Http\Controllers\MemberController;
+
+Route::resource('member',MemberController::class);
+```
+- Test APIs 
 
